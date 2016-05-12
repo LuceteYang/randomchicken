@@ -1,0 +1,101 @@
+<img src="/banner.png" height="100" width="400">
+<div class="row">
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      
+      <div class="caption">
+        <p>
+            <% @selected.each do |p| %> 
+            <div id="map" style="width:400px;height:300px;">
+                <script>
+            		var container = document.getElementById('map');
+            		var options = {
+            			center: new daum.maps.LatLng(<%= p.lat %>,<%= p.lon %>),
+            			level: 3
+            		};
+            //lat: 36.3667371, lon: 127.3522004)
+            		var map = new daum.maps.Map(container, options)
+            		
+            		var imageSrc = 'http://icons.iconarchive.com/icons/martin-berube/flat-animal/256/chicken-icon.png', // 마커이미지의 주소입니다    
+                        imageSize = new daum.maps.Size(64, 69), // 마커이미지의 크기입니다
+                        imageOption = {offset: new daum.maps.Point(27, 69)}; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+                      
+                    // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
+                    var markerImage = new daum.maps.MarkerImage(imageSrc, imageSize, imageOption),
+                        markerPosition  = new daum.maps.LatLng(<%= p.lat %>,<%= p.lon %>); 
+            		// 마커를 생성합니다
+                    var marker = new daum.maps.Marker({
+                        position: markerPosition,
+                        image: markerImage // 마커이미지 설정     
+                    });
+                    
+                    // 마커가 지도 위에 표시되도록 설정합니다
+                    marker.setMap(map);
+                        		
+        	    </script>
+             </div>
+                <!--<%= p.id %></br>   -->
+                <h3><%= p.name %></h3></br>
+            <% end %>
+        </p>
+        <p><a href="/" class="btn btn-primary" role="button">맘에안드렁</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="form-group">
+      <label for="exampleInputEmail1">별점</label></br>
+        <fieldset class="rating">
+            <input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+            <input type="radio" id="star4half" name="rating" value="4 and a half" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+            <input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+            <input type="radio" class = "rating1" id="star3half" name="rating" value="3 and a half" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+            <input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+            <input type="radio" id="star2half" name="rating" value="2 and a half" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+            <input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+            <input type="radio" id="star1half" name="rating" value="1 and a half" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+            <input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+            <input type="radio" id="starhalf" name="rating" value="half" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+        </fieldset>
+    </div>
+    </br>
+    <div class="form-group">
+      <label for="exampleInputPassword1">내용</label>
+      <textarea type="text" name="content" class="form-control" id="exampleInputPassword1" placeholder="내용"></textarea>
+    </div>
+    <% @selected.each do |p| %> 
+    <button type="submit" value="<%= p.id %>" class="btn btn-default reply_submit">글쓰기</button>
+  </br>
+   <div class="container">
+    <% p.replies.each do |r| %>
+      <p><%= r.rating %>, <%= r.content %></p>
+    <% end %>
+  <% end %>
+  </div>
+  </div>
+  </div>
+  <div>
+  </div>
+</div>
+
+<script>
+$(function(){
+$(".reply_submit").click(function(){
+  post_id = this.value;
+  content = $("#exampleInputPassword1").val();
+  rating = $("input[name=rating]:checked").val()
+  $.ajax({
+    method: "POST",
+    url: "/home/reply_write",
+    data: {rating:rating, content: content, id_of_post : post_id},
+    success: function(){
+      $( ".container").append("<p>"+rating+", "+content+"</br>");
+      $("#form-control").val("");
+    },
+    error: function(){
+      alert("리플이 작성되지않았습니다.")
+    }
+  })
+  })
+})
+</script>
